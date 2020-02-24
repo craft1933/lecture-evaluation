@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}
+<title>대학 강의 평가 - 강의 검색</title>
+{% endblock %}
+
+{% block style %}
+<style>
+    .banner{
+        width: 50%;
+        margin-left: 25%;
+        margin-right: 25%;
+        margin-top: 1%;
+        margin-bottom: 1%;
+    }
+    .card{
+        text-align: center;
+        margin-right: 5%;
+        margin-left: 5%;
+    }
+    .board{
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}
+<div class="navbar-nav">
+    <a class="nav-item nav-link active" href="{% url 'board' %}">강의 검색</a>
+    <a class="nav-item nav-link" href="{% url 'add' %}">강의 추가</a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div>
+    <div class="banner" style="text-align: center;">
+        <h1>강의 평가 검색</h1>
+        <p>대학 강의를 검색하세요.</p>
+        <p>강의 평을 보거나 추가하고 싶다면, 강의명으로 검색하세요.</p>
+        <div>
+            <form action="{% url 'lecture_search' %}" method="GET" class="form-inline" style="display: inline;">
+                <input class="form-control mr-sm-2" style="width: 70%;" type="search" name="search" aria-label="Search" placeholder="강의명으로 검색하세요.">
+                <button class="btn btn-outline-success my-2 my-sm-0" style="width: 20%;" type="submit">Search</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="board">
+        {% for lecture in lectures %}
+        {% if forloop.counter0|divisibleby:2 %}
+        <br><br>
+        {% endif %}
+        <div class="card" style="width: 18rem; display: inline-block;">
+            <div class="card-body">
+                <h5 class="card-title">{{ lecture.title }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">{{ lecture.professor }}</h6>
+                <br>
+                <a href="{% url 'detail' lecture.id %}" class="btn btn-outline-secondary btn-sm">평가 보기</a>
+                {% if user.is_authenticated %}
+                <a href="{% url 'evaluate' lecture.id %}" class="btn btn-outline-success btn-sm">평가 등록하기</a>
+                {% endif %}
+                {% if user.is_superuser %}
+                <br>
+                <a href="{% url 'lecture_delete' lecture.id %}" class="btn btn-outline-danger btn-sm mt-sm-2">삭제</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+
+        <br><br>
+        {%if lectures.has_previous%}
+        <a href="?page=1" class="btn btn-outline-secondary btn-sm">First</a>
+        <a href="?page={{lectures.previous_page_number}}" class="btn btn-outline-secondary btn-sm">Previous</a>
+        {%endif%}
+
+        <span> {{lectures.number}}</span>
+        <span> of </span>
+        <span>{{lectures.paginator.num_pages}} </span>
+
+        {%if lectures.has_next%}
+        <a href="?page={{lectures.next_page_number}}" class="btn btn-outline-secondary btn-sm">Next</a>
+        <a href="?page={{lectures.paginator.num_pages}}" class="btn btn-outline-secondary btn-sm">Last</a>
+        {%endif%}
+    </div>
+</div>
+{% endblock %}
